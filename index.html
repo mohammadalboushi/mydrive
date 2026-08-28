@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><link rel="manifest" href="manifest.json">
+
+    <meta name="description" content="وصف موقعك لمحركات البحث يكتب هنا.">
+    <meta name="keywords" content="كلمات, مفتاحية, عن, الموقع">
+    <meta name="author" content="اسم المطور">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#000000">
+    <link rel="canonical" href="https://yourdomain.com/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourdomain.com/">
+    <meta property="og:title" content="MyDrive">
+    <meta property="og:description" content="وصف الموقع الذي يظهر عند مشاركة الرابط.">
+    <meta property="og:image" content="icon-192.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="ar_AR">
+    <meta property="og:site_name" content="MyDrive">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MyDrive">
+    <meta name="twitter:description" content="وصف خاص يظهر على منصة تويتر.">
+    <meta name="twitter:image" content="icon-192.png">
+
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyDrive</title>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+
+    <div class="container">
+      <header>
+        <h1>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          MyDrive
+        </h1>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <span class="storage-badge" id="storage-badge"></span>
+          <button id="logout-btn" class="btn btn-outline" style="display: none;">تسجيل خروج</button>
+        </div>
+      </header>
+
+      <div id="auth-section" class="auth-card">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-login" style="cursor: default;">تسجيل الدخول</div>
+        </div>
+        <form id="auth-form">
+          <input type="email" id="email" placeholder="الإيميل" autocomplete="email" required="">
+          <div class="pw-wrap">
+            <input type="password" id="password" placeholder="كلمة السر" autocomplete="current-password" required="">
+            <button type="button" class="pw-toggle" id="pw-toggle" aria-label="إظهار كلمة السر">👁️</button>
+          </div>
+          <button type="submit" id="auth-submit-btn" class="btn" style="width: 100%;">دخول</button>
+        </form>
+        <p class="auth-hint" id="auth-hint"></p>
+      </div>
+
+      <div id="app-section">
+
+        <!-- الصف الأول: المسار (اليمين) وأزرار الأدوات (اليسار) -->
+        <div class="toolbar">
+          <div class="breadcrumb-wrap">
+            <button id="back-folder-btn" class="btn btn-light action-btn" style="display: none;" onclick="goUpFolder()" title="رجوع">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+            <div class="breadcrumb" id="breadcrumb"></div>
+          </div>
+
+          <div class="toolbar-actions">
+            <button class="btn btn-light action-btn" id="sort-btn" onclick="openSortModal()" title="ترتيب حسب">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="21" y1="10" x2="7" y2="10"></line>
+                <line x1="21" y1="6" x2="3" y2="6"></line>
+                <line x1="21" y1="14" x2="11" y2="14"></line>
+                <line x1="21" y1="18" x2="15" y2="18"></line>
+              </svg>
+            </button>
+            <button class="btn btn-light action-btn" id="view-toggle-btn" onclick="toggleView()" title="تغيير العرض">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+            <button class="btn btn-light action-btn" id="select-mode-btn" onclick="toggleSelectMode()" title="تحديد">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </button>
+            <button class="btn btn-light action-btn" onclick="promptNewFolder()" title="مجلد جديد">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                <line x1="12" y1="11" x2="12" y2="17"></line>
+                <line x1="9" y1="14" x2="15" y2="14"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- شريط الخيارات عند التحديد -->
+        <div class="selection-bar" id="selection-bar">
+          <span id="selection-count"></span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-light btn-sm" onclick="bulkMove()">نقل 📁</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDelete()">حذف 🗑️</button>
+            <button class="btn btn-light btn-sm" onclick="toggleSelectMode()">إلغاء</button>
+          </div>
+        </div>
+
+        <!-- الصف الثاني: شريط البحث المنفصل بكامل العرض -->
+        <div class="search-bar-container">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="بحث بالاسم...">
+        </div>
+
+        <!-- الصف الثالث: منطقة الرفع المدمجة -->
+        <div class="upload-area" id="drop-zone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <p>اضغط هنا أو اسحب الملفات للرفع في المجلد الحالي</p>
+          <input type="file" id="file-input" style="display: none;" multiple="">
+        </div>
+
+        <div class="upload-queue" id="upload-queue"></div>
+
+        <div class="files-grid" id="files-grid"></div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="custom-dialog">
+      <div class="modal-content">
+        <h3 id="dialog-title" style="margin-bottom: 12px;"></h3>
+        <p id="dialog-msg" style="color: var(--text-light); margin-bottom: 18px; font-size: 0.95rem;"></p>
+        <input type="text" id="dialog-input" style="display: none; padding:14px; border-radius:50px; border:1px solid #e7e5e4;" placeholder="اكتب هنا...">
+        <div id="dialog-folder-picker" class="folder-picker-list" style="display: none;"></div>
+        <div style="display: flex; gap: 10px; margin-top:10px;">
+          <button id="dialog-btn-confirm" class="btn" style="flex: 1;">موافق</button>
+          <button id="dialog-btn-cancel" class="btn btn-outline" style="flex: 1; background:#f1f5f9; color:var(--text); border-color:transparent;">إلغاء</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="options-modal" onclick="closeOptionsModal()">
+      <div class="options-modal-content" id="options-modal-content" onclick="event.stopPropagation()">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="sort-modal" onclick="closeSortModal()">
+      <div class="options-modal-content" onclick="event.stopPropagation()">
+        <div style="padding: 16px 24px; font-weight: 800; color: var(--primary-dark); border-bottom: 1px solid #f1f5f9; text-align: right; font-size: 1.05rem;">
+          ترتيب حسب</div>
+        <button onclick="applySort('date_desc')"><span class="sort-check" id="check-date_desc"></span> <span>الأحدث
+            أولاً</span></button>
+        <button onclick="applySort('date_asc')"><span class="sort-check" id="check-date_asc"></span> <span>الأقدم
+            أولاً</span></button>
+        <button onclick="applySort('name_asc')"><span class="sort-check" id="check-name_asc"></span> <span>الاسم (أ -
+            ي)</span></button>
+        <button onclick="applySort('size_desc')"><span class="sort-check" id="check-size_desc"></span> <span>الأكبر
+            حجماً</span></button>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="viewer-modal">
+      <div class="modal-viewer-content">
+        <button class="close-modal" onclick="closeViewer()" aria-label="إغلاق">⬅️ رجوع</button>
+        <div id="viewer-body" style="background: #000; display: flex; justify-content: center; align-items: center; min-height: 260px;">
+        </div>
+        <div class="modal-footer">
+          <span id="viewer-title" style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; direction: ltr; color: var(--text);"></span>
+          <button id="viewer-download-btn" class="btn">تنزيل ⬇️</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack"></div>
+
+
+    <script src="script.js"></script>
+  
+
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(r=>console.log('SW registered:',r.scope)).catch(e=>console.error('SW registration failed:',e));});}</script></body></html>

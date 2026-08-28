@@ -1,20 +1,20 @@
 {
   "name": "MyDrive",
   "short_name": "MyDrive",
-  "description": "تم بناؤه بواسطة نيو كود",
-  "start_url": "/",
+  "description": "تم بناؤه بواسطة Mohammad Al Boushi ",
+  "start_url": "/mydrive/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/mydrive/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "/mydrive/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
